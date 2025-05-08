@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destructuring Demo</title>
+</head>
+<body>
+    <p>Look in the console</p>
+    <!-- do this separately from the game if you want for your own education if you want -->
+    <script>
+        let combo = [2, 5, 7];
+
+// Without destructuring: (defining each variable individually)
+let x = combo[0];
+let y = combo[1];
+let z = combo[2];
+console.log(x, y, z);  // Output: 2 5 7
+
+// With destructuring:
+let [a, b, c] = combo;
+console.log(a, b, c);  // Output: 2 5 7
+
+
+    </script>
+</body>
+</html>

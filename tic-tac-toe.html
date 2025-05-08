@@ -66,8 +66,91 @@ for(let i = 0; i < 9; i++){
         newCell.attr('data-index', i);
         newCell.appendTo('#game-board');
 }
+//end part 1
+
+let currentPlayer = "X";
+let board = ["", "", "", "", "", "", "", "", ""];
+let gameActive = true;
+
+//start part 3:
+function checkWinner(){
+//this array within an array checks for winning combinations
+
+const wins = [
+    [0,1,2], [3,4,5], [6,7,8], //rows
+    [0,3,6], [1,4,7], [2,5,8], //columns
+    [0,4,8], [2,4,6] //diagonals
+];
+
+for(let combo of wins){
+    let [a,b,c] = combo;
+    console.log(combo);
+    if(board[a] && board[a] === board[b] && board[a] === board[c]){
+        //we have three items that have the same value
+        return board[a];
+    }
+    //check for empty cells
+    if(!board.includes("")){
+        return "Draw"; //no empty cells
+    }
+  //if none of that is true, keep doing the for... of loop
+}
+return null;
 
 
+}
+
+function updateStatus(winner){
+    if(winner === "Draw"){
+        $('.status').text("It's a draw!");
+    } else {
+        $('.status').text(`Player ${winner} wins!`);
+    }
+    gameActive = false;
+
+}
+
+
+function handleCellClick(){
+    if(!gameActive){
+       return; //returns a value of undefined 
+    }
+
+    const index = $(this).data('index');
+    board[index] = currentPlayer;
+    $(this).text(currentPlayer).addClass('taken');
+
+    const result = checkWinner(); 
+    console.log(result);
+    if(result){
+        updateStatus(result);
+    }else{
+        if(currentPlayer == "X"){
+        currentPlayer = "O";
+        }else{
+            currentPlayer = "X";
+        }
+        //need to unbind click from this square
+        $(this).off();
+        //update status
+        $('.status').text(`Player ${currentPlayer}'s turn`)
+    }
+}
+
+function resetGame(){
+    currentPlayer = "X";
+    board = ["", "", "", "", "", "", "", "", ""];
+    gameActive = true;
+    $('.cell').text("").removeClass('taken').off();
+    $('.status').text("Player X's Turn");
+    //rebind click event
+    $('.cell').click(handleCellClick);
+    
+}
+
+//event listener for clicks on cells
+$('.cell').click(handleCellClick);
+$('.reset').click(resetGame);
 
 </script>
 
