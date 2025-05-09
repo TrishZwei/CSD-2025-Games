@@ -60,43 +60,23 @@
           width: 50px;
           height: 50px;
           background-color: blueviolet;
+          /* background-image: url('player.png');  Replace with your image 
+          background-size: cover;*/
           position: absolute;
           bottom: 10px;
           left: 175px;
         }
-
-        #player.boy{
-            background-color: transparent;
-            background-image: url('images/boy.png');
-            background-repeat: no-repeat;
-            background-position: center;
-        }
-
-        #player.girl{
-            background: transparent url('images/girl.png') no-repeat center;
-        }
-
         .falling {
           width: 30px;
           height: 30px;
+          background-color: burlywood;
+          /*background-image: url('rock.png');  Replace with your image
+          background-size: cover; */
           position: absolute;
           top: 0;
         }
-
-        .falling.one{
-            background-image: url('images/30rock1.png');
-        }
-
-        .falling.two{
-            background-image: url('images/30rock2.png');
-        }
-        .falling.three{
-            background-image: url('images/30rock3.png');
-        }
-        .falling.four{
-            background-image: url('images/30rock4.png');
-        }
-
+        
+        
         </style>
 </head>
 <body>
@@ -104,9 +84,9 @@
     <div id="game-start">
         <h1>The Dodge Game</h1>
         <p>The Rules are simple:<br> 
-            Avoid getting hit by falling rocks. The longer you live, the more points you get! Move your player with the left and right arrow. Ready? Choose your player.
+            Avoid getting hit by falling rocks. The longer you live, the more points you get! Move your player with the left and right arrow.
         </p>
-        <button class="boy">Boy</button> <button class="girl">Girl</button>
+        <button>Ready?</button>
     </div>
     <div id="game-board">
         <div id="player"></div>
@@ -125,9 +105,8 @@
     <!-- your code goes in the script tags below: -->
      <script>
         'use strict'; 
-        //variables:
         const startBtn = $('#game-start button'),
-              endBtn = $('#game-end button'),
+              endBtn = $('#game-end button'),  
               gameBoard = $('#game-board'),
               gameStart = $('#game-start'),
               gameEnd = $('#game-end'),
@@ -136,99 +115,77 @@
         let gameRunning = false,
             gameWidth = 400,
             playerSpeed = 20,
-            startMS = 0, //millisecond value of time game started
-            endMS = 0, //millisecond value of time game ended
-            fallInterval, //space for timer 1
-            hitInterval; //space for hit detection interval
+            startMS = 0, //millisecond value of time started
+            endMS = 0, //millisecond value of time ended
+            fallInterval, //an undefined space to hold a timer for when the game starts running;
+            hitInterval;
 
-            function startGame(){
-                //get class from button
-                const pClass = $(this).prop('class');
+        
+        function startGame(){
+            //reveals game board:
+            gameBoard.show();
+            gameStart.hide();
+            gameRunning = true;
+            //start the intervals
+            fallInterval = setInterval(createFallingObjects, 750);
+            hitInterval = setInterval(hitDetect, 5);
+            //capture the time in milliseconds:
+            const now = new Date();
+            startMS = now.getTime();
+            console.log(startMS);
+        }
 
-                //add the class to player:
-                player.addClass(pClass);
-                
-                //reveals the game board
-                gameBoard.show();
-                gameStart.hide();
-                gameRunning = true;
+        function movePlayer(e){
 
-                //start the intervals
-                fallInterval = setInterval(createFallingObjects, 750);
-                hitInterval = setInterval(hitDetect, 5);
-
-                //set score value:
-                const now = new Date();
-                startMS = now.getTime();
-                console.log(startMS);
-            }
-
-
-            function movePlayer(e){
-
-                if(gameRunning){
-                    let left = parseInt(player.css('left'));
-                    if(e.which === 37 && left > 0){ //player moves left
-                        player.css('left', left - playerSpeed);
-                    }
-
-                    if(e.which === 39 && left < gameWidth - player.width()){
-                        player.css('left', left+playerSpeed);
-
-                    }
-
-
+            if(gameRunning){
+                let left = parseInt(player.css('left'));
+                if (e.which === 37 && left > 0) { // Left
+                    player.css('left', left - playerSpeed);
+                }
+                if (e.which === 39 && left < gameWidth - player.width()) { // Right
+                    player.css('left', left + playerSpeed);
                 }
             }
-
-//start new code: createFallingObjects() here
+        }
 
         function createFallingObjects(){
-            const rockClasses = ['one', 'two', 'three', 'four'],
-                  rockClass = getRandInt(0,3),
-                  fallObj = $('<div>').addClass(`falling ${rockClasses[rockClass]}`),
-                  top = -30;
-            
-            fallObj.css({top:top, left: getRandInt(0, gameWidth - 30)});
+            const fallObj = $('<div>').addClass('falling blue');
+            const top = -30; 
+            //use get randInt to get random left position:
+            fallObj.css({top:top, left:getRandInt(0,400-30)});
             gameBoard.append(fallObj);
-            fallObj.animate({top: gameBoard.height() + 50}, 1500, function(){
+            fallObj.animate({top: gameBoard.height()+50}, 1500, function(){
                 $(this).remove();
-            })
-
+            });
         }
 
         function hitDetect(){
-            if(!gameRunning) return; 
-                $('.falling').each( function(){
-                    if(rectHit(player, $(this))){
-                        console.log('hit detected');
-                        clearInterval(fallInterval);
-                        clearInterval(hitInterval);
-                        gameBoard.hide();
-                        gameEnd.show();
-                        gameRunning = false;
+            if(!gameRunning) return; //if gameRunning is false, exit this function
+            $('.falling').each( function(){
+                if(rectHit(player, $(this))){
+                    //alert('game over');
 
-                        const now = new Date();
-                        endMS = now.getTime();
+                    //clear the intervals
+                    clearInterval(fallInterval);
+                    clearInterval(hitInterval);
+                    gameBoard.hide();
+                    gameEnd.show();
+                    gameRunning = false;
+                    const now = new Date();
+                    endMS = now.getTime();
 
-                        const score = endMS - startMS;
-                        $('.score').text(score);
+                    const score = endMS-startMS;
+                    $('.score').text(score);
+                }
 
-                    }
-                })
-
-
+            });
 
         }
 
-
-
-        //included this function for you
         function getRandInt(min = 1, max = 100){
             return Math.floor(Math.random() * (max - min + 1)) + min;
          }
 
-         //included this function for you
          function rectHit(rectone, recttwo){
             //console.log('recthit called');
             var r1 = $(rectone);
@@ -257,13 +214,16 @@
             
          }//end rectHit function 
 
+
         //event listeners:
-         startBtn.on('click', startGame);
-         $(document).on('keydown', movePlayer);
-         endBtn.on('click', function(){
+        startBtn.on('click', startGame);
+
+        $(document).on('keydown', movePlayer)
+
+        endBtn.on('click', function(){
             location.reload(); //easiest way to refresh our game
-         })
-        
+        })
+
      </script>
 </body>
 </html>
