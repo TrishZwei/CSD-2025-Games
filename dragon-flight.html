@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Flight</title>
+    <style>
+        body{
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            font-size: 18px;
+            margin:0 auto;
+        }
+
+        #game-stage{
+            position:absolute;
+            top: 30px;
+            left:10px;
+            right:10px;
+            bottom:10px;
+            background-color: #add;
+            border: 1px solid black;
+            overflow:hidden;
+        }
+
+        #dragon{
+            position: absolute;
+            top: 100px;
+            left: 100px;
+            width: 50px;
+            height: 50px;
+            background-color: limegreen;
+
+        }
+
+    </style>
+</head>
+<body>
+    <div id="game-stage">
+        <div id="dragon"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script>
+        'use strict';
+
+        //const variables:
+       const dragon = $('#dragon'),
+             stage = $('#game-stage'),
+             dir = {
+                up:false,
+                down:false,
+                left:false,
+                right:false
+              }; //this is an object literal
+
+        //let variables:
+        let gameRunning= false,
+            speed = 6; //number of px our div will move. This MAY change!
+
+         $(document).keydown( function(e){
+            //e captures the event information
+
+            //arrows: up:38, down:40, left:37, right:39
+            //aswd: w:87, s:83, a:65, d:68
+
+            if(e.which === 38 || e.which === 87){
+                dir.up = true;
+            }
+
+            if(e.which === 40 || e.which === 83){
+                dir.down = true;
+            }
+
+            if(e.which === 37 || e.which === 65){
+                dir.left = true;
+            }            
+
+            if(e.which === 39 || e.which === 68){
+                dir.right = true;
+            }
+
+         })//end document.keydown
+
+         $(document).keyup( function(e){
+            //e captures the event information
+
+            //arrows: up:38, down:40, left:37, right:39
+            //aswd: w:87, s:83, a:65, d:68
+
+            if(e.which === 38 || e.which === 87){
+                dir.up = false;
+            }
+
+            if(e.which === 40 || e.which === 83){
+                dir.down = false;
+            }
+
+            if(e.which === 37 || e.which === 65){
+                dir.left = false;
+            }            
+
+            if(e.which === 39 || e.which === 68){
+                dir.right = false;
+            }
+
+         })//end document.keyup
+
+         function gameLoop(){
+            let newTop = 0,
+                newLeft = 0; 
+            
+                if(dir.up == true){
+                    newTop -= speed;
+                }
+                if(dir.down){
+                    newTop += speed;
+                }
+                if(dir.left == true){
+                    newLeft -= speed;
+                }
+                if(dir.right){
+                    newLeft += speed;
+                }               
+
+            //dragon's current position:
+            let dTop = dragon.position().top;
+            let dLeft = dragon.position().left;
+            
+            //dragon's height and width
+            let dHeight = 50;
+            let dWidth = 50; //dynamic value is dragon.width()
+
+            //to do: values to check against boundaries
+
+            dragon.css({top: '+='+newTop, left: '+='+newLeft})
+             
+            requestAnimationFrame(gameLoop);
+         }//end gameLoop
+
+    gameLoop();
+
+    </script>    
+</body>
+</html>
