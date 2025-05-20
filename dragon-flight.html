@@ -32,6 +32,32 @@
 
         }
 
+        .flame{
+            width: 10px;
+            height: 4px;
+            background-color: red;
+            position: absolute;
+            top: 100px;
+            left: 100px;
+        }
+
+        .enemy{
+            position:absolute;
+            top: 100px;
+            left:100px;
+            border: 1px solid black;
+            width: 50px;
+            height: 50px;
+        }
+
+        .enemy.blue{
+            background-color: #add;
+        }
+
+        .enemy.purple{
+            background-color: purple;
+        }
+
     </style>
 </head>
 <body>
@@ -55,7 +81,9 @@
 
         //let variables:
         let gameRunning= false,
-            speed = 6; //number of px our div will move. This MAY change!
+            speed = 6, //number of px our div will move. This MAY change!
+            enemyInt = setInterval(createEnemy, 1500);
+            
 
          $(document).keydown( function(e){
             //e captures the event information
@@ -77,6 +105,18 @@
 
             if(e.which === 39 || e.which === 68){
                 dir.right = true;
+            }
+
+            //change speed when shift key is pressed:
+
+            if(e.which === 16){
+                speed = 10;
+            }
+
+            //spacebar to shoot
+            if(e.which === 32){
+                //console.log('woooooosh!');
+                shootFlame();
             }
 
          })//end document.keydown
@@ -103,6 +143,12 @@
                 dir.right = false;
             }
 
+            //change speed when shift key is pressed:
+
+            if(e.which === 16){
+                speed = 6;
+            }
+
          })//end document.keyup
 
          function gameLoop(){
@@ -127,17 +173,149 @@
             let dLeft = dragon.position().left;
             
             //dragon's height and width
-            let dHeight = 50;
-            let dWidth = 50; //dynamic value is dragon.width()
+            let dHeight = 50,
+                dWidth = 50, //dynamic value is dragon.width()
+                //stage values
+                sWidth = stage.width(),
+                sHeight = stage.height();
 
-            //to do: values to check against boundaries
 
-            dragon.css({top: '+='+newTop, left: '+='+newLeft})
+            //values to check against boundaries
+            if(dTop+newTop < 0){
+                newTop = 0;
+                newTop -= dTop;
+
+            }  
+            
+            if(dLeft+newLeft < 0){
+                newLeft = 0;
+                newLeft -= dLeft;
+            }
+
+            if(dTop+newTop+dHeight>sHeight ){
+                newTop = 0;
+                newTop += (sHeight-dHeight-dTop);
+            }
+
+            if(dLeft+newLeft+dWidth > sWidth){
+                newLeft = 0;
+                newLeft += (sWidth-dWidth-dLeft);
+            }
+
+            dragon.css({top: '+='+newTop, left: '+='+newLeft});
+
+            //check hits:
+            $('.flame').each( function(){
+                let flame = $(this); 
+                $('.enemy').each( function(){
+                    let enemy = $(this);
+
+                    if(rectHit(flame, enemy)){
+                        flame.remove();
+                        enemy.remove();
+                        //add to score
+                        //update display
+
+                    }
+                })
+            });
+
+            $('.enemy').each( function(){
+                if(rectHit(dragon, $(this))){
+                    //remove enemy, not dragon:
+                    $(this).remove();
+                    console.log('dragon hit!');
+                    // remove list from dragon
+
+                    //write a gameOver()
+                    /* 
+                    removing the dragon
+                    clearing the interval
+                    end screen?
+                    */
+
+                }
+
+            })
+
              
             requestAnimationFrame(gameLoop);
          }//end gameLoop
 
     gameLoop();
+
+    function shootFlame(){
+        const flame = $('<div>').addClass('flame');
+
+        //add coordinates to the flame relative to the dragon's current position
+        let dTop = dragon.position().top,
+            dLeft = dragon.position().left;
+        
+        //position flame 50x50 dragon
+        let fTop = dTop+23,
+            fLeft = dLeft+50;
+
+        //apply CSS to flame
+        flame.css({top: fTop, left:fLeft});
+        stage.append(flame);
+        //other way to do same: flame.appendTo(stage);
+
+        flame.animate({left:stage.width()+100}, 1000, function(){
+            $(this).remove();
+        })
+
+    } //end shootFlame()
+
+    function createEnemy(){
+        const enemy = $('<div>').addClass('enemy'),
+              randClass = Math.random();
+        
+              if(randClass > .5){
+                enemy.addClass('blue');
+              }else{
+                enemy.addClass('purple');
+              }
+
+              //apply start position to enemy
+              let eLeft = stage.width()+100,
+                  eTop = Math.random() * (stage.height()-50);
+
+              enemy.css({top:eTop, left: eLeft});
+              stage.append(enemy);
+              enemy.animate({left: -100}, 2500, 'linear', function(){
+                $(this).remove();
+              })
+
+
+    }//end createEnemy()
+
+    function rectHit(rectone, recttwo){
+            //console.log('recthit called');
+            var r1 = $(rectone);
+            var r2 = $(recttwo);
+            
+            var r1x = r1.offset().left;
+            var r1w = r1.width();
+            var r1y = r1.offset().top;
+            var r1h = r1.height();
+            
+            var r2x = r2.offset().left;
+            var r2w = r2.width();
+            var r2y = r2.offset().top;
+            var r2h = r2.height();
+            
+            if( r1y+r1h < r2y ||
+                r1y > r2y+r2h ||
+                r1x > r2x+r2w ||
+                r1x+r1w < r2x ){
+            //  console.log('recthit-false')
+                return false;
+            }else{
+            //console.log('recthit-true')
+                return true;   
+            }
+            
+         }//end rectHit function 
 
     </script>    
 </body>
